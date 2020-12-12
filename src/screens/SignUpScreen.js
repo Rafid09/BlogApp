@@ -3,8 +3,8 @@ import { StatusBar } from 'expo-status-bar'
 import { ImageBackground,StyleSheet, Text, View } from 'react-native'
 import { Card,Input, Button } from 'react-native-elements'
 import { Ionicons,MaterialIcons,Feather  } from '@expo/vector-icons'
+import {storeDataJSON} from './../functions/AsyncStorageFunctions'
 import * as Animatable from 'react-native-animatable'
-import * as firebase from "firebase";
 
 const SignupScreen =(props)=> {
     let [name,setName]=useState("");
@@ -74,25 +74,19 @@ const SignupScreen =(props)=> {
                 type="solid"
                 onPress={
                     function () {
-                        if(Name && SID && Password && Email){
-                            firebase.auth().createUserWithEmailAndPassword(Email, Password).then((userCreds)=>{
-                                userCreds.user.updateProfile({displayName: Name});
-                                firebase.firestore().collection('users').doc(userCreds.user.uid).set({
-                                    name: Name,
-                                    sid: SID,
-                                    email: Email,
-                                }).then(()=>{
-                                    alert("Account created successfully!");
-                                    alert(uers.id)
-                                    console.log(userCreds.user);
-                                    props.navigation.navigate("SignIn");
-                                }).catch((error)=>{
-                                    alert(error);
-                                });
-                            }).catch((error)=>{
-                                alert(error);
-                            })
-                        }
+                        if(name.length>0 && isInvalidEmail==false && studentID.length>0 && password.length>=4)
+                        {
+                            let user={
+                            name:name,
+                            email:email,
+                            id:studentID,
+                            password:password,
+                            }
+                            storeDataJSON(email,user);
+                            alert("Account Created")
+                            props.navigation.push("Log In");
+                        }else alert("Invalid Input")
+                        
                     }
                 }
                 />

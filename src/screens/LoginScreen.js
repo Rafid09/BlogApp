@@ -4,8 +4,7 @@ import { ImageBackground,StyleSheet, Text, View } from 'react-native'
 import { Card,Input, Button } from 'react-native-elements'
 import { AntDesign,MaterialIcons  } from '@expo/vector-icons'
 import {AuthContext} from './../providers/AuthProvider'
-import * as firebase from "firebase";
-import "firebase/firestore";
+import {getDataJSON} from './../functions/AsyncStorageFunctions'
 import * as Animatable from 'react-native-animatable'
 
 const LoginScreen =(props)=> {
@@ -50,16 +49,15 @@ const LoginScreen =(props)=> {
                     onPress={async ()=>{
                         if(email.length!=0 && password.length!=0)
                         {
-                            try{
-                            firebase.auth().signInWithEmailAndPassword(Email, Password).then((userCreds) => {
-                                auth.setIsLoggedIn(true);
-                                auth.setCurrentUser(userCreds.user);
-                            }).catch((error) => {
-                                alert(error);
-                            })
-                        }catch(error){
+                            let user= await getDataJSON(email);
+                            if(user.password==password)
+                            {
+                                auth.setisLogged(true);
+                                auth.setcurrentUser(user);
+                            }
+                            else
                                 alert("Login credentials Invalid"); 
-                        }}else
+                        }else
                             alert("Please Enter Login Credentials"); 
                     }}
                     />

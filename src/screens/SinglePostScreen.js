@@ -5,43 +5,32 @@ import { Header,Avatar} from 'react-native-elements'
 import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons'
 import {Card, CardItem, Button, Left, Body, Right} from 'native-base'
-import * as firebase from "firebase";
+import {getDataJSON} from './../functions/AsyncStorageFunctions'
 import WriteComment from '../components/CommentWrite'
 import ShowComment from "./../components/CommentShow"
 
 const SinglePostScreen=({navigation,route})=>{
-    let user = firebase.auth().currentUser;
-    let userid = user.uid;
-    let username = user.displayName;
-    let postId = props.route.params.postid;
-    const [Post, setPost] = useState({});
-    const [Comment, setComment] = useState("");
-    let dict = {};
-    let [allc, setallc] = useState([]);
-
+    let postId=route.params.post
+    let [postDetails,setpostDetails]=useState({});
+    const [postComment,setComment]=useState([]);
+    const [reload,setReload]=useState(false);
     const getPostDetails =async()=>{
-        firebase.firestore().collection('posts').doc(postId).onSnapshot((doc) => {
-            let snap = doc.data()
-            setPost(snap)
-            setallc(snap.comments)
-        })
+        let postDetails=await getDataJSON(postId);
+        if(postDetails!=null){
+            setpostDetails(postDetails);
+        }
+        else console.log("no post")
     }
 
-    const postComment = async (userid)=>{
-        if(Comment != ""){
-            dict = {
-                "comment_poster_id": userid,
-                "commentor" : username,
-                "comment_body": Comment,
-            }
-            const doc = firebase.firestore().collection('posts').doc(postId).update({
-                comments: firebase.firestore.FieldValue.arrayUnion(dict)
-            }).then(()=>{
-                alert("Commented successfully");
-            });
-        }else{
-            alert("Field is empty!");
+    const getComments=async ()=>{
+        setReload(true)
+        let allComment=await getDataJSON('notification');
+        if(allComment!=null){
+            let Comment=allComment.filter(c=>c.postid==postDetails.id && c.comment!='')
+            setComment(Comment)
         }
+        else console.log("no comment")
+        setReload(false)
     }
 
     useEffect(()=>{

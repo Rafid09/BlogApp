@@ -6,8 +6,6 @@ import { storeDataJSON} from '../functions/AsyncStorageFunctions';
 import moment from 'moment';
 import { Entypo} from '@expo/vector-icons';
 
-import * as firebase from "firebase";
-import "firebase/firestore";
 
 function ShowCurrentDate() {
       var date = new moment().format('DD MMM YYYY');
@@ -19,38 +17,49 @@ const PostWrite=({user})=>{
     const [post, setPost] = useState("");
     const input = React.createRef();
     return(
-        <Card>
+    <Card containerStyle={{borderRadius:10,marginLeft:5,marginRight:5, shadowOffset:10}}>
         <Input
-            placeholder="What's On Your Mind?"
-            leftIcon={<Entypo name="pencil" size={24} color="black" />}
-            on onChangeText={(currentInput)=>{
-                setInput(currentInput)
-            }}
+        ref={input}
+        placeholder='Write what is on your mind'
+        multiline={true}
+        leftIcon={<Entypo name="pencil" size={38} color="grey" />}
+        onChangeText={(text)=>{
+            setPost(text); 
+        }}
         />
-        <Button title="Post" type="outline" 
-        titleStyle={{color: "#1c1c1c"}}
-        onPress={function () {
-            if(input == ""){
-                alert("Filed is Empty!");
-            }else{
-                setLoading(true);
-                firebase.firestore().collection('posts').add({
-                    userId: auth.CurrentUser.uid,
-                    body: input,
-                    author: auth.CurrentUser.displayName,
-                    created_at: firebase.firestore.Timestamp.now(),
-                    likes: [],
-                    comments: [],
-                }).then(() => {
-                    setLoading(false);
-                    alert("Post was created successfully!")
-                    alert(posts.id)
-                }).catch((error) => {
-                    setLoading(false);
-                    alert(error);
-                });
-            }
-        }} />
+        <View style={{flexDirection:'row-reverse'}}>
+            <Button title='Post' buttonStyle={{width:110,alignSelf:'flex-start',backgroundColor:"goldenrod"}} onPress={
+                ()=>{
+                    id=Math.floor((Math.random() * 100000) + 1);
+                    if(post.length>0){
+                        let newPost={
+                        id:"post"+id,
+                        post:post,
+                        user_name:user.name,
+                        user_email:user.email,
+                        date: ShowCurrentDate(),
+                        likecount:0,
+                        }
+                        storeDataJSON("post"+id,newPost);
+                        setPost("");
+                        input.current.clear();
+                    }
+                    else {
+                        alert("Input Field Empty");
+                    }
+                }
+            }/>
+            <Button 
+            disabled={post.length==0? true:false} 
+            type='clear' title='Clear' 
+            titleStyle={{color:"goldenrod"}}
+            buttonStyle={{width:120,alignSelf:'flex-end'}}
+            onPress={()=>{
+                setPost("");
+                input.current.clear();
+            }}/>
+        </View>
+        
     </Card>
     );
     
