@@ -6,28 +6,31 @@ import {AuthContext} from './../providers/AuthProvider'
 import { Ionicons } from '@expo/vector-icons'
 import PostWrite from './../components/PostWrite'
 import ShowPost from './../components/PostShow'
-import { getDataJSON, getAllKeys} from '../functions/AsyncStorageFunctions'
+//import { getDataJSON, getAllKeys} from '../functions/AsyncStorageFunctions'
+
+import * as firebase from "firebase";
+import "firebase/firestore";
 
 
 const  HomeScreen =({navigation})=> {
     const [posts,setPosts]=useState([]);
     const [reload,setReload]=useState(false)
     const getPosts = async ()=>{
-        setReload(true)
-        let keys=await getAllKeys();
-        let Allposts=[];
-        if(keys!=null ){
-            for (let key of keys) {
-                if (key.startsWith('post')) {
-                    let post=await getDataJSON(key)
-                    Allposts.push(post);
-                }
-            }
-            setPosts(Allposts);
-        }
-        else
-            console.log("no keys");
-        setReload(false);
+        setLoading(true);
+        await firebase.firestore().collection('posts').orderBy("created_at", "desc").onSnapshot((querySnapshot)=>{
+            let temp_posts = []
+            querySnapshot.forEach((doc)=>{
+                temp_posts.push({
+                    id: doc.id,
+                    data: doc.data(),
+                });
+            });
+            setPosts(temp_posts);
+            setLoading(false);
+        }).then().catch((error)=>{
+            setLoading(false);
+            alert(error);
+        });
     }
 
     useEffect(()=>{

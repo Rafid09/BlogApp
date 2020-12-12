@@ -14,7 +14,19 @@ import NotificationScreen from './src/screens/NotificationScreen'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import { AuthProvider,AuthContext } from './src/providers/AuthProvider'
 import ProfileScreen from './src/screens/ProfieScreen'
+import *as firebase from "firebase"
 
+var firebaseConfig = {
+  apiKey: "AIzaSyCe-a88pogGfZG349AE25MR3GxRlV2hl94",
+  authDomain: "socialapp-2eb2d.firebaseapp.com",
+  databaseURL: "https://socialapp-2eb2d.firebaseio.com",
+  projectId: "socialapp-2eb2d",
+  storageBucket: "socialapp-2eb2d.appspot.com",
+  messagingSenderId: "203300864608",
+  appId: "1:203300864608:web:1b4d5687875625536f3905"
+};
+
+firebase.initializeApp(firebaseConfig)
 
 const Authstack = createStackNavigator()
 const Notificationstack = createStackNavigator()
